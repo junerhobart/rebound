@@ -5,8 +5,8 @@
     <LangVersion>latest</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>Loyalty</AssemblyName>
-    <RootNamespace>Loyalty</RootNamespace>
+    <AssemblyName>Rebound</AssemblyName>
+    <RootNamespace>Rebound</RootNamespace>
     <Managed>$(GameFolder)\BladeAndSorcery_Data\Managed</Managed>
   </PropertyGroup>
 

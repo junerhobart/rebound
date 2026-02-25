@@ -1,9 +1,9 @@
 using ThunderRoad;
 using UnityEngine;
 
-namespace Loyalty
+namespace Rebound
 {
-    public class LoyaltyScript : ThunderScript
+    public class ReboundScript : ThunderScript
     {
         // ── Mod options ───────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ namespace Loyalty
             EventManager.OnItemGrab    += OnItemGrabbed;
             EventManager.OnItemRelease += OnItemReleased;
             EventManager.onLevelUnload += OnLevelUnload;
-            Debug.Log("[Loyalty] Loaded.");
+            Debug.Log("[Rebound] Loaded.");
         }
 
         public override void ScriptUnload()
@@ -205,9 +205,10 @@ namespace Loyalty
 
             // ── Handle orientation ────────────────────────────────────────────────
             Vector3 handleOffset = trackedData.handle.transform.position - trackedItem.transform.position;
+            // Negate so the blade end (opposite of handle) points away — handle arrives at player's hand
             Vector3 gripDir      = handleOffset.sqrMagnitude > 0.001f
-                ? handleOffset.normalized
-                : trackedData.handle.transform.up;
+                ? -handleOffset.normalized
+                : -trackedData.handle.transform.up;
 
             float orientBlend = Mathf.Clamp01(1f - distance / 5f);
             float orientSpeed = Mathf.Lerp(4f, 14f, orientBlend); // fixed — no inertia division

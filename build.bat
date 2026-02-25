@@ -9,11 +9,11 @@ if not defined GAME_FOLDER (
 )
 
 cd /d "%~dp0src"
-dotnet build -c Release --nologo /p:OutputPath="%~dp0Loyalty" /p:GameFolder="%GAME_FOLDER%"
+dotnet build -c Release --nologo /p:OutputPath="%~dp0Rebound" /p:GameFolder="%GAME_FOLDER%"
 if errorlevel 1 ( pause & exit /b 1 )
 
 echo.
-echo Done. Copy the Loyalty folder into:
+echo Done. Copy the Rebound folder into:
 echo %GAME_FOLDER%\BladeAndSorcery_Data\StreamingAssets\Mods\
 echo.
 pause
