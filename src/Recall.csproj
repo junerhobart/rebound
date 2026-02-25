@@ -5,29 +5,38 @@
     <LangVersion>latest</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>Loyalty</AssemblyName>
+    <RootNamespace>Loyalty</RootNamespace>
+    <Managed>$(GameFolder)\BladeAndSorcery_Data\Managed</Managed>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="ThunderRoad">
-      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\ThunderRoad.dll</HintPath>
+      <HintPath>$(Managed)\ThunderRoad.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(Managed)\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(Managed)\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(Managed)\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(Managed)\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+
+  <Target Name="CopyManifest" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\manifest.json"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

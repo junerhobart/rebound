@@ -1,6 +1,5 @@
+Loyalty/
 src/bin/
 src/obj/
-build/
-Recall/
-*.user
-.DS_Store
+
+.env
