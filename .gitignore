@@ -1,6 +1,7 @@
 src/bin/
 src/obj/
 build/
+lib/
 *.user
 .DS_Store
 build.bat
