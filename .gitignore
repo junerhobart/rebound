@@ -3,3 +3,4 @@ src/obj/
 build/
 *.user
 .DS_Store
+build.bat
