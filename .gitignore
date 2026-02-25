@@ -1,5 +1,5 @@
+Rebound/
 src/bin/
 src/obj/
-build/
-*.user
-.DS_Store
+
+.env
