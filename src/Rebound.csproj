@@ -7,7 +7,14 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Rebound</AssemblyName>
     <RootNamespace>Rebound</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'!='Nomad'">
     <Managed>$(GameFolder)\BladeAndSorcery_Data\Managed</Managed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Nomad'">
+    <Managed>$(NomadFolder)\BladeAndSorcery_Data\Managed</Managed>
   </PropertyGroup>
 
   <ItemGroup>
