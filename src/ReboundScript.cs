@@ -234,8 +234,9 @@ namespace Rebound
 
         private void RestoreGravity()
         {
-            if (trackedData?.handle?.physicBody != null)
-                trackedData.handle.physicBody.useGravity = trackedData.savedGravity;
+            var pb = trackedData?.handle?.physicBody;
+            if (pb != null && pb.rigidBody != null)
+                pb.useGravity = trackedData.savedGravity;
         }
 
         private class RecallData
