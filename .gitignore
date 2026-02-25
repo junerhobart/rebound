@@ -1,7 +1,6 @@
 src/bin/
 src/obj/
 build/
-lib/
+Recall/
 *.user
 .DS_Store
-build.bat

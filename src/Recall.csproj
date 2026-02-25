@@ -9,19 +9,19 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\lib\UnityEngine.dll</HintPath>
+      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\lib\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(BASDIR)\BladeAndSorcery_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
