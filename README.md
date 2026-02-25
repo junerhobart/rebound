@@ -1,6 +1,6 @@
 # Rebound — Blade & Sorcery Mod
 
-Throw any item, press grip on an empty hand, and it flies back to you Mjolnir-style — arcing overhead, orienting handle-first, and landing right in your grip.
+Throw any item, press grip on an empty hand, and it flies back to you Mjolnir-style — arcing overhead, auto orienting, and landing right in your grip.
 
 ## Building
 
