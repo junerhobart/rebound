@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true
         run: |
           python3 -c "
-          import urllib.request, json, os, sys
+          import urllib.request, json, os, sys, glob
           webhook = os.environ.get('DISCORD_WEBHOOK', '').strip()
           if not webhook:
             print('No webhook configured, skipping.')
@@ -87,25 +87,34 @@ jobs:
           parts = [f'**Rebound {version} has been released!**']
           if changelog:
             parts.append(changelog)
-          links = [release_url]
-          for label, key in [('mod.io', 'MODIO_PAGE_URL'), ('Nexus', 'NEXUS_PAGE_URL')]:
-            url_val = os.environ.get(key, '').strip()
-            if url_val:
-              links.append(f'{label}: {url_val}')
+          links = [f'<{release_url}>']
+          for key in ['MODIO_PAGE_URL', 'NEXUS_PAGE_URL']:
+            val = os.environ.get(key, '').strip()
+            if val:
+              links.append(f'<{val}>')
           parts.append(chr(10).join(links))
-          payload = {'content': (chr(10) + chr(10)).join(parts)}
+          content = (chr(10) + chr(10)).join(parts)
           url = webhook
           thread_id = os.environ.get('DISCORD_THREAD_ID', '').strip()
           if thread_id:
             url += ('&' if '?' in url else '?') + 'thread_id=' + thread_id
-          req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode(),
-            headers={
-              'Content-Type': 'application/json',
-              'User-Agent': 'Rebound-GitHubAction/1.0'
-            }
-          )
+          zip_files = glob.glob('dist/*.zip')
+          if zip_files:
+            zip_path = zip_files[0]
+            zip_data = open(zip_path, 'rb').read()
+            boundary = 'boundary987654321'
+            payload_json = json.dumps({'content': content}).encode()
+            body = (f'--{boundary}\r\nContent-Disposition: form-data; name=\"payload_json\"\r\nContent-Type: application/json\r\n\r\n').encode()
+            body += payload_json + b'\r\n'
+            body += (f'--{boundary}\r\nContent-Disposition: form-data; name=\"files[0]\"; filename=\"{os.path.basename(zip_path)}\"\r\nContent-Type: application/zip\r\n\r\n').encode()
+            body += zip_data + f'\r\n--{boundary}--\r\n'.encode()
+            headers = {'Content-Type': f'multipart/form-data; boundary={boundary}', 'User-Agent': 'Rebound-GitHubAction/1.0'}
+            print(f'Attaching {os.path.basename(zip_path)}')
+          else:
+            body = json.dumps({'content': content}).encode()
+            headers = {'Content-Type': 'application/json', 'User-Agent': 'Rebound-GitHubAction/1.0'}
+            print('No zip found, sending text only.')
+          req = urllib.request.Request(url, data=body, headers=headers)
           try:
             res = urllib.request.urlopen(req)
             print('Discord notified. Status:', res.status)
