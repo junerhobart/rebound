@@ -12,14 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install markdown parser
+        run: pip install markdown --quiet
+
       - name: Update mod.io description
         run: |
           python3 -c "
-          import urllib.request, urllib.parse, os
+          import urllib.request, urllib.parse, os, markdown
           readme = open('README.md').read()
+          html = markdown.markdown(readme)
           game_id = os.environ['MODIO_GAME_ID']
           mod_id = os.environ['MODIO_MOD_ID']
-          data = urllib.parse.urlencode({'description': readme}).encode()
+          data = urllib.parse.urlencode({'description': html}).encode()
           req = urllib.request.Request(
             f'https://api.mod.io/v1/games/{game_id}/mods/{mod_id}',
             data=data,
