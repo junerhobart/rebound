@@ -1,0 +1,38 @@
+name: Sync README
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'README.md'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update mod.io description
+        run: |
+          python3 -c "
+          import urllib.request, urllib.parse, os
+          readme = open('README.md').read()
+          game_id = os.environ['MODIO_GAME_ID']
+          mod_id = os.environ['MODIO_MOD_ID']
+          data = urllib.parse.urlencode({'description': readme}).encode()
+          req = urllib.request.Request(
+            f'https://api.mod.io/v1/games/{game_id}/mods/{mod_id}',
+            data=data,
+            headers={
+              'Authorization': f'Bearer {os.environ[\"MODIO_TOKEN\"]}',
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'User-Agent': 'Rebound-GitHubAction/1.0'
+            },
+            method='PUT'
+          )
+          print('Status:', urllib.request.urlopen(req).status)
+          "
+        env:
+          MODIO_TOKEN: ${{ secrets.MODIO_TOKEN }}
+          MODIO_GAME_ID: ${{ vars.MODIO_GAME_ID }}
+          MODIO_MOD_ID: ${{ vars.MODIO_MOD_ID }}

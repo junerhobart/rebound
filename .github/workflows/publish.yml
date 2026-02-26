@@ -1,0 +1,116 @@
+name: Publish
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g. 1.2.0) — must match an existing release"
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.release.tag_name || inputs.version }}
+      RELEASE_URL: ${{ github.event.release.html_url || '' }}
+      CHANGELOG: ${{ github.event.release.body || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download release zip
+        if: github.event_name == 'release'
+        run: gh release download "${{ env.VERSION }}" --pattern "*.zip" --dir ./dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download release zip (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh release download "${{ env.VERSION }}" --pattern "*.zip" --dir ./dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to mod.io
+        if: github.event_name == 'release'
+        run: |
+          python3 -c "
+          import urllib.request, json, os, glob
+          token = os.environ['MODIO_TOKEN']
+          game_id = os.environ['MODIO_GAME_ID']
+          mod_id = os.environ['MODIO_MOD_ID']
+          version = os.environ['VERSION']
+          changelog = os.environ.get('CHANGELOG', '')
+          zip_files = glob.glob('dist/*.zip')
+          if not zip_files:
+            raise FileNotFoundError('No zip found in dist/')
+          zip_path = zip_files[0]
+          boundary = 'boundary123456'
+          body = (
+            f'--{boundary}\r\nContent-Disposition: form-data; name=\"version\"\r\n\r\n{version}\r\n'
+            f'--{boundary}\r\nContent-Disposition: form-data; name=\"changelog\"\r\n\r\n{changelog}\r\n'
+            f'--{boundary}\r\nContent-Disposition: form-data; name=\"active\"\r\n\r\n1\r\n'
+            f'--{boundary}\r\nContent-Disposition: form-data; name=\"filedata\"; filename=\"{os.path.basename(zip_path)}\"\r\nContent-Type: application/zip\r\n\r\n'
+          ).encode() + open(zip_path, 'rb').read() + f'\r\n--{boundary}--\r\n'.encode()
+          req = urllib.request.Request(
+            f'https://api.mod.io/v1/games/{game_id}/mods/{mod_id}/files',
+            data=body,
+            headers={
+              'Authorization': f'Bearer {token}',
+              'Content-Type': f'multipart/form-data; boundary={boundary}',
+              'User-Agent': 'Rebound-GitHubAction/1.0'
+            }
+          )
+          res = urllib.request.urlopen(req)
+          print('mod.io upload status:', res.status)
+          "
+        env:
+          MODIO_TOKEN: ${{ secrets.MODIO_TOKEN }}
+          MODIO_GAME_ID: ${{ vars.MODIO_GAME_ID }}
+          MODIO_MOD_ID: ${{ vars.MODIO_MOD_ID }}
+          VERSION: ${{ env.VERSION }}
+          CHANGELOG: ${{ env.CHANGELOG }}
+
+      - name: Notify Discord
+        if: success()
+        continue-on-error: true
+        run: |
+          python3 -c "
+          import urllib.request, json, os, sys
+          webhook = os.environ.get('DISCORD_WEBHOOK', '').strip()
+          if not webhook:
+            print('No webhook configured, skipping.')
+            sys.exit(0)
+          changelog = os.environ.get('CHANGELOG', '').strip()
+          release_url = os.environ.get('RELEASE_URL', '').strip() or 'https://github.com/${{ github.repository }}/releases'
+          version = os.environ.get('VERSION', '')
+          parts = [f'**Rebound {version} has been released!**']
+          if changelog:
+            parts.append(changelog)
+          parts.append(release_url)
+          payload = {'content': (chr(10) + chr(10)).join(parts)}
+          url = webhook
+          thread_id = os.environ.get('DISCORD_THREAD_ID', '').strip()
+          if thread_id:
+            url += ('&' if '?' in url else '?') + 'thread_id=' + thread_id
+          req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode(),
+            headers={
+              'Content-Type': 'application/json',
+              'User-Agent': 'Rebound-GitHubAction/1.0'
+            }
+          )
+          try:
+            res = urllib.request.urlopen(req)
+            print('Discord notified. Status:', res.status)
+          except urllib.error.HTTPError as e:
+            print('Discord error:', e.code, e.reason, e.read().decode())
+            sys.exit(1)
+          "
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_THREAD_ID: ${{ vars.DISCORD_THREAD_ID }}
+          VERSION: ${{ env.VERSION }}
+          RELEASE_URL: ${{ env.RELEASE_URL }}
+          CHANGELOG: ${{ env.CHANGELOG }}
