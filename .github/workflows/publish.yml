@@ -87,7 +87,12 @@ jobs:
           parts = [f'**Rebound {version} has been released!**']
           if changelog:
             parts.append(changelog)
-          parts.append(release_url)
+          links = [release_url]
+          for label, key in [('mod.io', 'MODIO_PAGE_URL'), ('Nexus', 'NEXUS_PAGE_URL')]:
+            url_val = os.environ.get(key, '').strip()
+            if url_val:
+              links.append(f'{label}: {url_val}')
+          parts.append(chr(10).join(links))
           payload = {'content': (chr(10) + chr(10)).join(parts)}
           url = webhook
           thread_id = os.environ.get('DISCORD_THREAD_ID', '').strip()
@@ -114,3 +119,5 @@ jobs:
           VERSION: ${{ env.VERSION }}
           RELEASE_URL: ${{ env.RELEASE_URL }}
           CHANGELOG: ${{ env.CHANGELOG }}
+          MODIO_PAGE_URL: ${{ vars.MODIO_PAGE_URL }}
+          NEXUS_PAGE_URL: ${{ vars.NEXUS_PAGE_URL }}
